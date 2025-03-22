@@ -15,7 +15,7 @@
 
 ### What exactly did we discover?
 
-* We found **early MLP layers where the cosine similarity variance is especially small between prompts about the same subject**, but high between subjects (e.g. between LeBron and Obama).  
+* We found **early MLP layers where the cosine similarity variance is especially small between prompts about the same subject**, but high between different subjects (e.g. between LeBron and Obama).  
   This *may suggest* these low variance MLPs get excited by the subject and output the same info related to it regardless of context\!
 
 ## The Process
