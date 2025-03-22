@@ -53,4 +53,4 @@ When we had this experiment outlined we let ChatGPT o1 take the wheel :)
 
 **We then scaled for many more people and animals** (Harry Potter, Trump, Lion, Elephant, etc.) and saw **they all consistently had an early MLP with especially low variance of outputs between different questions for the target**’s name’s last token\!  
 
-**We also saw that low variance MLP stays in the same layer across languages and aliases\!** (across Chinese and Arabic specifically and across aliases like FDR \<\> Franklin Roosevelt).
+**We also saw that lowest variance MLP layer stays the same layer across languages and aliases\!** (across Chinese and Arabic specifically and across aliases like FDR \<\> Franklin Roosevelt).
