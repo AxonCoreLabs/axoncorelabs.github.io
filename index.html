@@ -107,35 +107,41 @@
   </main>
 
   <script>
-    /* 
-      1) List your post folder names here in an array. 
-         Each folder must contain "index.md".
-    */
-    const postFolders = [
-      'my-first-post',
-      'my-second-post',
-      'random-thoughts',
-      // Add more as you create them...
-    ];
-
     // We'll keep track of data for each post, plus which post is currently open
     let postsData = [];
     let currentOpenPost = null;
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Build the preview list (fetch each folder's index.md snippet).
-      buildPostList()
+      // 1) Load the folder list from 'posts.json'
+      fetch('posts.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Could not load posts.json');
+          }
+          return response.json();
+        })
+        .then(jsonData => {
+          // jsonData should be { folders: ["folder1", "folder2", ...] }
+          const postFolders = jsonData.folders || [];
+          // 2) Build the preview list using that folder list
+          return buildPostList(postFolders);
+        })
         .then(() => {
-          // Check if there's a "?post=folderName" param in the URL
+          // 3) Check if there's a "?post=folderName" param in the URL
           const params = new URLSearchParams(window.location.search);
           const folderParam = params.get('post');
           if (folderParam) {
             loadFullPost(folderParam);
           }
+        })
+        .catch(error => {
+          console.error(error);
+          document.getElementById('blog-list').innerHTML = 
+            '<p style="color:red;">Error loading posts.json. Check console.</p>';
         });
     });
 
-    async function buildPostList() {
+    async function buildPostList(postFolders) {
       const blogListDiv = document.getElementById('blog-list');
       blogListDiv.innerHTML = ''; // Clear "Loading posts..."
 
@@ -166,12 +172,12 @@
         }
       }
 
+      // Now create a preview card for each successfully fetched post
       if (postsData.length === 0) {
         blogListDiv.innerHTML = '<p>No posts found.</p>';
         return;
       }
 
-      // Create a preview card for each post
       postsData.forEach(post => {
         const previewEl = document.createElement('div');
         previewEl.className = 'post-preview';
@@ -181,12 +187,9 @@
           <div class="post-snippet">${post.snippetHtml}</div>
         `;
 
-        /* Single-click opens (or re-opens) the post */
+        // Single click = Open/Load the post if it's not the current one
         previewEl.addEventListener('click', (event) => {
           event.stopPropagation();
-          
-          // If we click a different post than the one open,
-          // or if no post is open, we open the clicked one
           if (currentOpenPost !== post.folder) {
             // Update URL param
             const url = new URL(window.location);
@@ -197,10 +200,9 @@
           }
         });
 
-        /* Double-click closes if it's the currently open post */
+        // Double-click = if it's the currently open post, close it
         previewEl.addEventListener('dblclick', (event) => {
           event.stopPropagation();
-
           if (currentOpenPost === post.folder) {
             closePost();
           }
@@ -210,6 +212,7 @@
       });
     }
 
+    // Load the full post from a folder's index.md and display it
     function loadFullPost(folderName) {
       const contentDiv = document.getElementById('post-content');
       const defaultMsg = document.getElementById('default-message');
@@ -230,7 +233,7 @@
         .then(mdText => {
           const fullHtml = marked.parse(mdText);
           contentDiv.innerHTML = fullHtml;
-          // Scroll down to content if desired
+          // Optionally scroll to the content
           window.scrollTo({ top: contentDiv.offsetTop, behavior: 'smooth' });
         })
         .catch(err => {
@@ -241,8 +244,6 @@
     // Close any currently open post and reset
     function closePost() {
       const contentDiv = document.getElementById('post-content');
-      const defaultMsg = document.getElementById('default-message');
-
       contentDiv.innerHTML = `<p id="default-message">Select a post to read, or click a preview once it’s open to close.</p>`;
       currentOpenPost = null;
 
