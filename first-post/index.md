@@ -1,4 +1,4 @@
-# Diving into the MLP
+# Understanding the MLP's I/O types - part 1
 
 ### What did we get done?
 
@@ -20,9 +20,10 @@
 
 ## The Process
 
-***Reminder**: we are working on the intuition (developed by the incredible Mor Geva) that the MLP layer functions as a key-value store, where keys capture patterns like “LeBron James” and values store attributes about him (such as “Savannah James”, his wife).*
+***Reminder**: we are working on the intuition ([Mor Geva et al. 2021](https://arxiv.org/abs/2012.14913)) that the MLP layer functions as a key-value store, where keys capture patterns like “LeBron James” and values store attributes about him (such as “Savannah James”, his wife).*
 
 We want to prove that there is an MLP that takes just “Lebron James”, clean of context, as “input” and would output all info about him.  
+
 After some brainstorming we decided that if we find an MLP layer whose output is fairly constant across questions about a specific person, **it means it doesn’t respond to the context but to the entity itself** and it may just give all info about it. **Its “input type” then would be the entity itself and not prompt-specific context.**
 
 ## The Experiment
@@ -47,5 +48,7 @@ When we had this experiment outlined we let ChatGPT o1 take the wheel :)
 ![Lebron and Obama](/first-post/lebron_and_obama.png)
 
 **We see that the variance for Lebron James is consistently low for layer 1 and for Barack Obama in layer 2, but high in all layers for the mix of questions about both\!**  
-**We then scaled for many more people** **and animals** (Harry Potter, Trump, Lion, Elephant, etc.) and saw they all consistently had an early MLP with especially low variance of outputs between different questions for the target’s name’s last token\!  
-**We also saw that low variance MLP stays the same layer across languages** **and aliases\!** (Chinese and Arabic specifically and aliases like FDR \<\> Franklin Roosevelt).  
+
+**We then scaled for many more people** **and animals** (Harry Potter, Trump, Lion, Elephant, etc.) and saw **they all consistently had an early MLP with especially low variance of outputs between different questions for the target**’s name’s last token\!  
+
+**We also saw that low variance MLP stays in the same layer across languages and aliases\!** (across Chinese and Arabic specifically and across aliases like FDR \<\> Franklin Roosevelt).
