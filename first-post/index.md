@@ -39,8 +39,8 @@ When we had this experiment outlined we let ChatGPT o1 take the wheel :)
 
 **x axis is layer number, y axis is the coefficient of variance of the cosine similarities.**  
 <div style="display: flex; gap: 2px;">
-  <img src="obama.png" alt="Image 1" width="200"/>
-  <img src="lebron.png" alt="Image 2" width="200"/>
+  <img src="/first-post/obama.png" alt="Image 1" width="200"/>
+  <img src="/first-post/lebron.png" alt="Image 2" width="200"/>
 </div>
 
 <br>
