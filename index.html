@@ -162,7 +162,7 @@
           }
 
           // Build a snippet: the first 10 lines
-          const snippetLines = lines.slice(0, 5).join('\n');
+          const snippetLines = lines.slice(0, 10).join('\n');
           const snippetHtml = marked.parse(snippetLines);
 
           // Save post data
@@ -183,7 +183,8 @@
         previewEl.className = 'post-preview';
 
         previewEl.innerHTML = `
-          <div class="post-snippet">${post.snippetHtml}</div>
+          <div class="post-snippet">${post.snippetHtml}...</div>
+          <div><p>...</p></div>
         `;
 
         // Single click:
