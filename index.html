@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>My GitHub Pages Blog</title>
+  <!-- Marked.js to render Markdown in the browser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script>
+    // List of subfolders you want to check for 'index.md'
+    // You can manually add them here, or generate this array in some build step:
+    const possibleFolders = [
+      'first-post'
+    ];
+
+    // We'll store found posts here: { folderName: 'my-first-post', title: 'Post Title', ... }
+    let foundPosts = [];
+
+    async function checkFoldersAndBuildList() {
+      // For each folder, try to fetch 'folder/index.md'
+      for (const folder of possibleFolders) {
+        try {
+          const response = await fetch(`${folder}/index.md`);
+          if (response.ok) {
+            // We have found a real folder with an index.md
+            // Grab the first heading (if any) inside the .md as the post's title
+            const mdText = await response.text();
+            const lines = mdText.split('\n');
+            let postTitle = folder; // fallback
+            // Quick parse for a markdown heading (e.g., '# My First Post')
+            const headingLine = lines.find(line => line.trim().startsWith('# '));
+            if (headingLine) {
+              postTitle = headingLine.replace(/^# +/, '').trim();
+            }
+
+            foundPosts.push({ folder, title: postTitle });
+          }
+        } catch (err) {
+          // fetch failed (non-existent folder or other error), so skip
+          console.log(`Skipping folder "${folder}" - not found or inaccessible.`);
+        }
+      }
+
+      // Now build a list of links in the #blog-list UL
+      const list = document.getElementById('blog-list');
+      list.innerHTML = ''; // clear any placeholder text
+      foundPosts.forEach(post => {
+        const li = document.createElement('li');
+        const link = document.createElement('a');
+        link.href = "#"; 
+        link.textContent = post.title;
+        link.onclick = () => loadMarkdown(post.folder);
+        li.appendChild(link);
+        list.appendChild(li);
+      });
+
+      // If no posts found, show a message
+      if (foundPosts.length === 0) {
+        list.innerHTML = '<li>No blog posts found.</li>';
+      }
+    }
+
+    function loadMarkdown(folderName) {
+      const contentDiv = document.getElementById('content');
+      fetch(`${folderName}/index.md`)
+        .then(response => response.text())
+        .then(md => {
+          const html = marked.parse(md);
+          contentDiv.innerHTML = html;
+        })
+        .catch(err => {
+          contentDiv.innerHTML = '<p style="color:red;">Error loading the blog post.</p>';
+          console.error(err);
+        });
+    }
+
+    // On page load, find valid folders and build the list
+    window.addEventListener('DOMContentLoaded', checkFoldersAndBuildList);
+  </script>
+</head>
+<body>
+  <h1>Welcome to My GitHub.io Blog</h1>
+
+  <!-- Where the list of auto-detected posts will go -->
+  <ul id="blog-list">
+    <li>Loading posts...</li>
+  </ul>
+
+  <hr>
+
+  <!-- When a user clicks on a post, its Markdown will display here -->
+  <div id="content">
+    <p>Select a post above to read!</p>
+  </div>
+</body>
+</html>
