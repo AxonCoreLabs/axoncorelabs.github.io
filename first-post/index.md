@@ -39,7 +39,7 @@ When we had this experiment outlined we let ChatGPT o1 take the wheel :)
 
 <i>x axis is layer number, y axis is the coefficient of variance of the cosine similarities.</i>
 
-**We see that the coefficient of variance for Lebron James is consistently low for layer 1 and for Barack Obama in layer 2**
+**We see that the variance of cosine similarity of MLP outputs for Lebron James is consistently low for layer 1 and low for Barack Obama in layer 2**
 
 <div style="display: flex; gap: 2px;">
   <img src="/first-post/obama.png" alt="Image 1" style="width: 50%; height: auto;">
@@ -48,7 +48,7 @@ When we had this experiment outlined we let ChatGPT o1 take the wheel :)
 
 <br>
 
-**We also see the coefficient of variance is high in all early layers for the mix of questions about both\!**  
+**We also see the variance is high in all early layers for the mix of questions about both\!**  
 
 ![Lebron and Obama](/first-post/lebron_and_obama.png)
 
