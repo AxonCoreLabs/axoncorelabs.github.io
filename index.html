@@ -5,92 +5,160 @@
   <title>My GitHub Pages Blog</title>
   <!-- Marked.js to render Markdown in the browser -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    /* Basic styling for the blog list and preview cards */
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      max-width: 800px;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    .post-preview {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 1rem;
+      cursor: pointer;
+    }
+    .post-preview h2 {
+      margin-top: 0;
+    }
+    .post-preview p {
+      margin: 0.5em 0;
+    }
+    #post-content {
+      margin-top: 2rem;
+      padding: 1rem;
+      border-top: 2px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>My GitHub.io Blog</h1>
+
+  <!-- Where the list of post previews will be placed -->
+  <div id="blog-list">
+    <p>Loading posts...</p>
+  </div>
+
+  <!-- The full post content will display here when clicked or loaded by URL param -->
+  <div id="post-content">
+    <p>Select a post from above to read!</p>
+  </div>
 
   <script>
-    // List of subfolders you want to check for 'index.md'
-    // You can manually add them here, or generate this array in some build step:
-    const possibleFolders = [
-      'first-post'
+    // Manually list the folder names here:
+    const postFolders = [
+      'first-post',
     ];
 
-    // We'll store found posts here: { folderName: 'my-first-post', title: 'Post Title', ... }
-    let foundPosts = [];
+    // We'll store information about posts (title, snippet, folder) once fetched
+    let postsData = [];
 
-    async function checkFoldersAndBuildList() {
-      // For each folder, try to fetch 'folder/index.md'
-      for (const folder of possibleFolders) {
+    // On page load, check if there's a '?post=folderName' param in the URL
+    // If so, we should load that post automatically.
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1) Build the list of post previews
+      buildPostList();
+
+      // 2) Check URL param
+      const urlParams = new URLSearchParams(window.location.search);
+      const folder = urlParams.get('post');
+      if (folder) {
+        // Attempt to load the full post if a valid folder param is given
+        loadFullPost(folder);
+      }
+    });
+
+    // Fetch each folder's index.md, create a snippet preview, and build the list
+    async function buildPostList() {
+      const blogListDiv = document.getElementById('blog-list');
+      blogListDiv.innerHTML = ''; // Clear placeholder
+
+      // For each folder, try to fetch index.md
+      for (const folder of postFolders) {
+        const indexMdUrl = `${folder}/index.md`;
         try {
-          const response = await fetch(`${folder}/index.md`);
-          if (response.ok) {
-            // We have found a real folder with an index.md
-            // Grab the first heading (if any) inside the .md as the post's title
-            const mdText = await response.text();
-            const lines = mdText.split('\n');
-            let postTitle = folder; // fallback
-            // Quick parse for a markdown heading (e.g., '# My First Post')
-            const headingLine = lines.find(line => line.trim().startsWith('# '));
-            if (headingLine) {
-              postTitle = headingLine.replace(/^# +/, '').trim();
-            }
-
-            foundPosts.push({ folder, title: postTitle });
+          const response = await fetch(indexMdUrl);
+          if (!response.ok) {
+            throw new Error(`Fetch failed for ${indexMdUrl}`);
           }
+          const mdText = await response.text();
+
+          // Extract the first line that starts with '# ' as the post title
+          const lines = mdText.split('\n');
+          let title = folder;
+          const headingLine = lines.find(line => line.trim().startsWith('# '));
+          if (headingLine) {
+            title = headingLine.replace(/^# +/, '').trim();
+          }
+
+          // Create a "snippet": first 10 lines (or fewer if there's not that many)
+          const snippetLines = lines.slice(0, 10).join('\n');
+          const snippetHtml = marked.parse(snippetLines);
+
+          // Store post data so we can reference it if user clicks
+          postsData.push({ folder, title, snippetHtml });
+
         } catch (err) {
-          // fetch failed (non-existent folder or other error), so skip
-          console.log(`Skipping folder "${folder}" - not found or inaccessible.`);
+          console.log(`Skipping folder "${folder}" - no index.md or fetch error.`);
         }
       }
 
-      // Now build a list of links in the #blog-list UL
-      const list = document.getElementById('blog-list');
-      list.innerHTML = ''; // clear any placeholder text
-      foundPosts.forEach(post => {
-        const li = document.createElement('li');
-        const link = document.createElement('a');
-        link.href = "#"; 
-        link.textContent = post.title;
-        link.onclick = () => loadMarkdown(post.folder);
-        li.appendChild(link);
-        list.appendChild(li);
-      });
-
-      // If no posts found, show a message
-      if (foundPosts.length === 0) {
-        list.innerHTML = '<li>No blog posts found.</li>';
+      // Now build the preview cards from postsData
+      if (postsData.length === 0) {
+        blogListDiv.innerHTML = '<p>No blog posts found.</p>';
+        return;
       }
+
+      postsData.forEach(post => {
+        const previewEl = document.createElement('div');
+        previewEl.className = 'post-preview';
+
+        // Insert HTML snippet
+        previewEl.innerHTML = `
+          <h2>${post.title}</h2>
+          <div>${post.snippetHtml}</div>
+        `;
+
+        // Clicking this preview should load the full post
+        previewEl.addEventListener('click', () => {
+          // Update the URL param to reflect the chosen post
+          // This also helps if the user bookmarks the link
+          const url = new URL(window.location);
+          url.searchParams.set('post', post.folder);
+          window.history.pushState({}, '', url);
+
+          loadFullPost(post.folder);
+        });
+
+        blogListDiv.appendChild(previewEl);
+      });
     }
 
-    function loadMarkdown(folderName) {
-      const contentDiv = document.getElementById('content');
+    // Load the full post from a folder's index.md and display it
+    function loadFullPost(folderName) {
+      const postContentDiv = document.getElementById('post-content');
+      postContentDiv.innerHTML = `<p>Loading post from "${folderName}"...</p>`;
+
       fetch(`${folderName}/index.md`)
-        .then(response => response.text())
-        .then(md => {
-          const html = marked.parse(md);
-          contentDiv.innerHTML = html;
+        .then(res => {
+          if (!res.ok) {
+            throw new Error(`Could not load ${folderName}/index.md`);
+          }
+          return res.text();
+        })
+        .then(mdText => {
+          const fullHtml = marked.parse(mdText);
+          postContentDiv.innerHTML = fullHtml;
+          // Optionally, scroll to the content
+          window.scrollTo({ top: postContentDiv.offsetTop, behavior: 'smooth' });
         })
         .catch(err => {
-          contentDiv.innerHTML = '<p style="color:red;">Error loading the blog post.</p>';
-          console.error(err);
+          postContentDiv.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
         });
     }
-
-    // On page load, find valid folders and build the list
-    window.addEventListener('DOMContentLoaded', checkFoldersAndBuildList);
   </script>
-</head>
-<body>
-  <h1>Welcome to My GitHub.io Blog</h1>
-
-  <!-- Where the list of auto-detected posts will go -->
-  <ul id="blog-list">
-    <li>Loading posts...</li>
-  </ul>
-
-  <hr>
-
-  <!-- When a user clicks on a post, its Markdown will display here -->
-  <div id="content">
-    <p>Select a post above to read!</p>
-  </div>
 </body>
 </html>
