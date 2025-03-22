@@ -6,7 +6,7 @@
 
 ### Why did we do it? 
 
-* To understand the input/output “types” of the MLP responsible for connections between entities (e.g. who is LeBron James’ wife). The input type apparently is the general entity as opposed to the context specific value.  
+* To understand the input/output “types” of the MLPs responsible for connections between entities (e.g. "Lebron James" --wife--> "Savannah James"). 
 * To locate the MLP responsible for enriching knowledge about a specific concept.
 
 ### What did we do?
