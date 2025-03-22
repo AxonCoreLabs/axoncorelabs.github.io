@@ -9,8 +9,7 @@
 * To understand the input/output “types” of the MLPs responsible for connections between entities (e.g. "Lebron James" --wife--> "Savannah James"). 
 * To locate the MLP responsible for enriching knowledge about a specific concept.
 
-### What did we do?
-
+### What experiment did we run?
 * **Calculated the variance of the cosine similarity between every MLP output and one control output for many different questions about one “entity”** (e.g. Lebron James, Lion). We specifically looked at the last token of the entity’s name (e.g. “Who is the wife of LeBron James”, “What city is the birthplace of LeBron James?” Focusing on the token “James”).
 
 ### What exactly did we discover?
