@@ -102,12 +102,12 @@
 
     <!-- Full post content area -->
     <div id="post-content">
-      <p id="default-message">Select a post to read, or click a preview once it’s open to close.</p>
+      <p id="default-message">Select a post to read. Click the same post again to close it.</p>
     </div>
   </main>
 
   <script>
-    // We'll keep track of data for each post, plus which post is currently open
+    // We'll store data for each post, plus track which post is currently open.
     let postsData = [];
     let currentOpenPost = null;
 
@@ -187,24 +187,22 @@
           <div class="post-snippet">${post.snippetHtml}</div>
         `;
 
-        // Single click = Open/Load the post if it's not the current one
+        // Single click:
+        //  - If it's a different post than the one open, open it.
+        //  - If it's the same post that's already open, close it.
         previewEl.addEventListener('click', (event) => {
           event.stopPropagation();
-          if (currentOpenPost !== post.folder) {
-            // Update URL param
+
+          if (currentOpenPost === post.folder) {
+            // Re-clicking the same post -> close it
+            closePost();
+          } else {
+            // Different post -> open it
             const url = new URL(window.location);
             url.searchParams.set('post', post.folder);
             window.history.pushState({}, '', url);
 
             loadFullPost(post.folder);
-          }
-        });
-
-        // Double-click = if it's the currently open post, close it
-        previewEl.addEventListener('dblclick', (event) => {
-          event.stopPropagation();
-          if (currentOpenPost === post.folder) {
-            closePost();
           }
         });
 
@@ -220,7 +218,7 @@
       contentDiv.innerHTML = `<p>Loading <strong>${folderName}</strong>...</p>`;
       currentOpenPost = folderName; // track which post is open
 
-      // Hide default message if it exists
+      // Hide default message if present
       if (defaultMsg) {
         defaultMsg.style.display = 'none';
       }
@@ -244,10 +242,10 @@
     // Close any currently open post and reset
     function closePost() {
       const contentDiv = document.getElementById('post-content');
-      contentDiv.innerHTML = `<p id="default-message">Select a post to read, or click a preview once it’s open to close.</p>`;
+      contentDiv.innerHTML = `<p id="default-message">Select a post to read. Click the same post again to close it.</p>`;
       currentOpenPost = null;
 
-      // Clear "?post=" from the URL by removing the param
+      // Clear "?post=" from the URL
       const url = new URL(window.location);
       url.searchParams.delete('post');
       window.history.pushState({}, '', url);
