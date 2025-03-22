@@ -2,7 +2,7 @@
 
 ### What did we get done?
 
-* Gave evidence **strengthening the intuition that early MLP layers may receive what we call an “entity”**, for example “LeBron James” or “Barack Obama” as input and output its attributes (e.g. wife). **As opposed to being asked a concept specific query**, like “Wife of LeBron James” and outputting its answer.
+* Gave evidence **strengthening the intuition that early MLP layers may receive what we call an “entity” as input** (e.g Lebron James, Barack Obama) and output its attributes (e.g. wife). **As opposed to receiving a concept specific query as input** and outputting its answer (e.g. “Wife of LeBron James” -> "Savannah James")
 
 ### Why did we do it? 
 
